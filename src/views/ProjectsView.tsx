@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Briefcase, 
@@ -8,31 +8,54 @@ import {
   Plus, 
   Filter, 
   Copy,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from 'lucide-react';
 import { Project } from '../types';
-import { initialProjects } from '../data/initialData';
 import StatusBadge from '../components/StatusBadge';
 import AddProjectModal from '../components/modals/AddProjectModal';
 import CopyProjectModal from '../components/modals/CopyProjectModal';
 import { motion, AnimatePresence } from 'motion/react';
 import CustomSelect from '../components/CustomSelect';
+import { db, collection, onSnapshot, query, orderBy, handleFirestoreError, OperationType } from '../firebase';
+import { useUser } from '../App';
 
 interface ProjectsViewProps {
   onSelectProject: (project: Project) => void;
 }
 
 const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) => {
-    const [projects, setProjects] = useState<Project[]>(initialProjects);
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [filterType, setFilterType] = useState('All');
     const [filterStatus, setFilterStatus] = useState('All');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [projectToCopy, setProjectToCopy] = useState<Project | null>(null);
+    const { user } = useUser();
+
+    useEffect(() => {
+        const q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'));
+        
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const projectsData = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            } as Project));
+            setProjects(projectsData);
+            setLoading(false);
+        }, (error) => {
+            handleFirestoreError(error, OperationType.LIST, 'projects', user?.uid, user?.email);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [user]);
 
     const filteredProjects = useMemo(() => {
         return projects.filter(p => {
-            const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.client.toLowerCase().includes(search.toLowerCase());
+            const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || 
+                                 (p.client?.toLowerCase().includes(search.toLowerCase()) ?? false);
             const matchesType = filterType === 'All' || p.type === filterType;
             const matchesStatus = filterStatus === 'All' || p.status === filterStatus;
             return matchesSearch && matchesType && matchesStatus;
@@ -72,8 +95,8 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                     {[
                         { title: 'Total Projects', value: projects.length.toString(), icon: Briefcase, color: 'text-blue-600' },
-                        { title: 'Active Today', value: projects.filter(p => p.status === 'Active').length.toString(), icon: Settings, color: 'text-purple-600' },
-                        { title: 'Print Ready', value: projects.filter(p => p.status === 'Print Ready').length.toString(), icon: FileText, color: 'text-green-600' },
+                        { title: 'Active Today', value: projects.filter(p => p.status === 'in-progress').length.toString(), icon: Settings, color: 'text-purple-600' },
+                        { title: 'Completed', value: projects.filter(p => p.status === 'completed').length.toString(), icon: FileText, color: 'text-green-600' },
                     ].map((stat, i) => (
                         <motion.div 
                             key={i} 
@@ -124,10 +147,10 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) => {
                             onChange={setFilterStatus}
                             options={[
                                 { value: 'All', label: 'All Statuses' },
-                                { value: 'Active', label: 'Active' },
-                                { value: 'Draft', label: 'Draft' },
-                                { value: 'Completed', label: 'Completed' },
-                                { value: 'Print Ready', label: 'Print Ready' },
+                                { value: 'in-progress', label: 'Active' },
+                                { value: 'pending', label: 'Draft' },
+                                { value: 'completed', label: 'Completed' },
+                                { value: 'cancelled', label: 'Cancelled' },
                             ]}
                             icon={<Filter size={16} />}
                             width="w-48"
@@ -155,14 +178,23 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) => {
                                 <th className="px-6 py-3 text-right">Action</th>
                             </tr>
                         </thead>
-                        <motion.tbody 
-                            variants={container}
-                            initial="hidden"
-                            animate="show"
-                            className="divide-y divide-gray-100"
-                        >
-                            <AnimatePresence mode="popLayout">
-                                {filteredProjects.map((project) => (
+                                <motion.tbody 
+                                    variants={container}
+                                    initial="hidden"
+                                    animate="show"
+                                    className="divide-y divide-gray-100"
+                                >
+                                    <AnimatePresence mode="popLayout">
+                                        {loading ? (
+                                            <tr>
+                                                <td colSpan={6} className="px-6 py-12 text-center">
+                                                    <div className="flex flex-col items-center justify-center gap-3">
+                                                        <Loader2 size={32} className="text-blue-600 animate-spin" />
+                                                        <p className="text-gray-500 font-medium">Loading projects...</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ) : filteredProjects.map((project) => (
                                     <motion.tr 
                                         key={project.id} 
                                         variants={item}

@@ -1,11 +1,23 @@
+export interface User {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  role: 'admin' | 'printer' | 'client';
+}
+
 export interface Project {
-  id: number;
+  id: string;
   name: string;
-  client: string;
-  type: string;
-  status: string;
-  entries: number;
-  session?: string;
+  description?: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
+  clientId: string;
+  printerId?: string;
+  createdAt: any; // Firestore Timestamp
+  deadline?: any; // Firestore Timestamp
+  type?: string; // For backward compatibility if needed
+  client?: string; // For backward compatibility if needed
+  entries?: number; // For backward compatibility if needed
 }
 
 export interface ProjectType {

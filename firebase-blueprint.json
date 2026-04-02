@@ -1,59 +1,134 @@
 {
   "entities": {
-    "Document": {
-      "title": "Document",
-      "description": "A document uploaded to the system",
+    "users": {
+      "title": "User Profile",
+      "description": "Stores user profile information and roles.",
       "type": "object",
       "properties": {
-        "name": { "type": "string", "description": "The name of the file" },
-        "url": { "type": "string", "description": "The download URL of the file" },
-        "type": { "type": "string", "description": "The MIME type of the file" },
-        "size": { "type": "number", "description": "The size of the file in bytes" },
-        "uploadedAt": { "type": "string", "format": "date-time", "description": "When the document was uploaded" },
-        "userId": { "type": "string", "description": "The ID of the user who uploaded the document" }
+        "uid": { "type": "string", "description": "Unique identifier for the user." },
+        "email": { "type": "string", "format": "email", "description": "User's email address." },
+        "name": { "type": "string", "description": "User's full name." },
+        "role": { "type": "string", "enum": ["admin", "printer", "client"], "description": "User's role in the system." },
+        "photoUrl": { "type": "string", "format": "uri", "description": "URL to the user's profile picture." }
       },
-      "required": ["name", "url", "uploadedAt", "userId"]
+      "required": ["uid", "email", "name", "role"]
     },
-    "Note": {
-      "title": "Note",
-      "description": "A simple text note",
+    "projects": {
+      "title": "Project",
+      "description": "Represents a printing project.",
       "type": "object",
       "properties": {
-        "title": { "type": "string", "description": "The title of the note" },
-        "content": { "type": "string", "description": "The content of the note" },
-        "color": { "type": "string", "description": "The background color of the note" },
-        "createdAt": { "type": "string", "format": "date-time", "description": "When the note was created" },
-        "updatedAt": { "type": "string", "format": "date-time", "description": "When the note was last updated" },
-        "userId": { "type": "string", "description": "The ID of the user who owns the note" }
+        "id": { "type": "string", "description": "Unique identifier for the project." },
+        "name": { "type": "string", "description": "Name of the project." },
+        "description": { "type": "string", "description": "Detailed description of the project." },
+        "status": { "type": "string", "enum": ["pending", "in-progress", "completed", "cancelled"], "description": "Current status of the project." },
+        "clientId": { "type": "string", "description": "UID of the client who owns the project." },
+        "printerId": { "type": "string", "description": "UID of the printer assigned to the project." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the project was created." },
+        "deadline": { "type": "string", "format": "date-time", "description": "Project deadline." }
+      },
+      "required": ["name", "status", "clientId", "createdAt"]
+    },
+    "idCards": {
+      "title": "ID Card",
+      "description": "Represents an individual ID card within a project.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the ID card." },
+        "projectId": { "type": "string", "description": "ID of the project this card belongs to." },
+        "name": { "type": "string", "description": "Name on the ID card." },
+        "photoUrl": { "type": "string", "format": "uri", "description": "URL to the photo for the ID card." },
+        "status": { "type": "string", "enum": ["pending", "printed", "shipped"], "description": "Current status of the ID card." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the ID card record was created." }
+      },
+      "required": ["projectId", "name", "status", "createdAt"]
+    },
+    "notifications": {
+      "title": "Notification",
+      "description": "System notifications for users.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the notification." },
+        "userId": { "type": "string", "description": "UID of the user to receive the notification." },
+        "message": { "type": "string", "description": "Notification message." },
+        "read": { "type": "boolean", "description": "Whether the notification has been read." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the notification was created." }
+      },
+      "required": ["userId", "message", "read", "createdAt"]
+    },
+    "documents": {
+      "title": "Document",
+      "description": "Stores metadata for uploaded project files.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the document." },
+        "name": { "type": "string", "description": "Original file name." },
+        "url": { "type": "string", "format": "uri", "description": "Download URL from Firebase Storage." },
+        "type": { "type": "string", "description": "MIME type of the file." },
+        "size": { "type": "number", "description": "File size in bytes." },
+        "uploadedAt": { "type": "string", "format": "date-time", "description": "Timestamp when the file was uploaded." },
+        "userId": { "type": "string", "description": "UID of the user who uploaded the file." },
+        "storagePath": { "type": "string", "description": "Full path in Firebase Storage." }
+      },
+      "required": ["name", "url", "type", "size", "uploadedAt", "userId"]
+    },
+    "notes": {
+      "title": "Note",
+      "description": "Quick notes and ideas for users.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the note." },
+        "title": { "type": "string", "description": "Optional title for the note." },
+        "content": { "type": "string", "description": "The text content of the note." },
+        "color": { "type": "string", "description": "Background color class for the note." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the note was created." },
+        "userId": { "type": "string", "description": "UID of the user who owns the note." }
       },
       "required": ["content", "createdAt", "userId"]
     },
-    "Task": {
+    "tasks": {
       "title": "Task",
-      "description": "A daily task",
+      "description": "Daily tasks and to-do items.",
       "type": "object",
       "properties": {
-        "title": { "type": "string", "description": "The task description" },
-        "date": { "type": "string", "format": "date", "description": "The date for the task (YYYY-MM-DD)" },
-        "completed": { "type": "boolean", "description": "Whether the task is completed" },
-        "createdAt": { "type": "string", "format": "date-time", "description": "When the task was created" },
-        "userId": { "type": "string", "description": "The ID of the user who owns the task" }
+        "id": { "type": "string", "description": "Unique identifier for the task." },
+        "title": { "type": "string", "description": "Task description." },
+        "date": { "type": "string", "description": "Target date for the task (YYYY-MM-DD)." },
+        "completed": { "type": "boolean", "description": "Whether the task is finished." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the task was created." },
+        "userId": { "type": "string", "description": "UID of the user who owns the task." }
       },
       "required": ["title", "date", "completed", "createdAt", "userId"]
     }
   },
   "firestore": {
+    "/users/{userId}": {
+      "schema": "users",
+      "description": "User profile documents."
+    },
+    "/projects/{projectId}": {
+      "schema": "projects",
+      "description": "Project documents."
+    },
+    "/projects/{projectId}/idCards/{idCardId}": {
+      "schema": "idCards",
+      "description": "ID card documents within a project."
+    },
+    "/notifications/{notificationId}": {
+      "schema": "notifications",
+      "description": "User notifications."
+    },
     "/documents/{docId}": {
-      "schema": "Document",
-      "description": "Collection of documents"
+      "schema": "documents",
+      "description": "User documents."
     },
     "/notes/{noteId}": {
-      "schema": "Note",
-      "description": "Collection of notes"
+      "schema": "notes",
+      "description": "User notes."
     },
     "/tasks/{taskId}": {
-      "schema": "Task",
-      "description": "Collection of daily tasks"
+      "schema": "tasks",
+      "description": "User tasks."
     }
   }
 }

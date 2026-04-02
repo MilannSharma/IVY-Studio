@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CheckSquare, Plus, Trash2, Mic, MicOff, Calendar as CalendarIcon, Search, Check, Square } from 'lucide-react';
-import { db, auth, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, orderBy, Timestamp, handleFirestoreError, OperationType } from '../firebase';
+import { db, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, orderBy, Timestamp, handleFirestoreError, OperationType } from '../firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { format, isSameDay, startOfDay } from 'date-fns';
+import { useUser } from '../App';
 
 interface Task {
     id: string;
@@ -21,13 +22,14 @@ const TasksView: React.FC = () => {
     const [newTaskTitle, setNewTaskTitle] = useState('');
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef<any>(null);
+    const { user } = useUser();
 
     useEffect(() => {
-        if (!auth.currentUser) return;
+        if (!user) return;
 
         const q = query(
             collection(db, 'tasks'),
-            where('userId', '==', auth.currentUser.uid),
+            where('userId', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
 
@@ -38,11 +40,11 @@ const TasksView: React.FC = () => {
             });
             setTasks(fetchedTasks);
         }, (error) => {
-            handleFirestoreError(error, OperationType.GET, 'tasks');
+            handleFirestoreError(error, OperationType.GET, 'tasks', user.uid, user.email);
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -79,7 +81,7 @@ const TasksView: React.FC = () => {
     };
 
     const handleAddTask = async () => {
-        if (!newTaskTitle.trim() || !auth.currentUser) return;
+        if (!newTaskTitle.trim() || !user) return;
 
         try {
             await addDoc(collection(db, 'tasks'), {
@@ -87,29 +89,31 @@ const TasksView: React.FC = () => {
                 date: format(selectedDate, 'yyyy-MM-dd'),
                 completed: false,
                 createdAt: Timestamp.now(),
-                userId: auth.currentUser.uid
+                userId: user.uid
             });
             setNewTaskTitle('');
         } catch (error) {
-            handleFirestoreError(error, OperationType.CREATE, 'tasks');
+            handleFirestoreError(error, OperationType.CREATE, 'tasks', user.uid, user.email);
         }
     };
 
     const toggleTask = async (task: Task) => {
+        if (!user) return;
         try {
             await updateDoc(doc(db, 'tasks', task.id), {
                 completed: !task.completed
             });
         } catch (error) {
-            handleFirestoreError(error, OperationType.UPDATE, `tasks/${task.id}`);
+            handleFirestoreError(error, OperationType.UPDATE, `tasks/${task.id}`, user.uid, user.email);
         }
     };
 
     const handleDeleteTask = async (id: string) => {
+        if (!user) return;
         try {
             await deleteDoc(doc(db, 'tasks', id));
         } catch (error) {
-            handleFirestoreError(error, OperationType.DELETE, `tasks/${id}`);
+            handleFirestoreError(error, OperationType.DELETE, `tasks/${id}`, user.uid, user.email);
         }
     };
 

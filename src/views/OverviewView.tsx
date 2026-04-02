@@ -1,12 +1,55 @@
-import React from 'react';
-import { Activity, ArrowUpRight, Users, Briefcase, FileCheck, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Activity, ArrowUpRight, Users, Briefcase, FileCheck, AlertCircle, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { db, collection, onSnapshot, query, orderBy, limit, handleFirestoreError, OperationType } from '../firebase';
+import { Project } from '../types';
+import { useUser } from '../App';
 
 interface OverviewViewProps {
   setActiveTab: (tab: string) => void;
 }
 
 const OverviewView: React.FC<OverviewViewProps> = ({ setActiveTab }) => {
+    const [stats, setStats] = useState({
+        totalProcessing: 0,
+        activeProjects: 0,
+        aiRejected: 0,
+        readyToPrint: 0,
+        clientsCount: 0
+    });
+    const [recentProjects, setRecentProjects] = useState<Project[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { user } = useUser();
+
+    useEffect(() => {
+        const q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'), limit(5));
+        
+        const unsubscribe = onSnapshot(collection(db, 'projects'), (snapshot) => {
+            const projects = snapshot.docs.map(doc => doc.data() as Project);
+            
+            const active = projects.filter(p => p.status === 'in-progress').length;
+            const completed = projects.filter(p => p.status === 'completed').length;
+            const pending = projects.filter(p => p.status === 'pending').length;
+            
+            // Mocking some stats based on projects for demo purposes
+            setStats({
+                totalProcessing: projects.reduce((acc, p) => acc + (p.entries || 0), 0),
+                activeProjects: active,
+                aiRejected: Math.floor(projects.length * 1.5), // Mocked
+                readyToPrint: projects.filter(p => p.status === 'completed').reduce((acc, p) => acc + (p.entries || 0), 0),
+                clientsCount: new Set(projects.map(p => p.clientId)).size
+            });
+
+            setRecentProjects(snapshot.docs.slice(0, 3).map(doc => ({ id: doc.id, ...doc.data() } as Project)));
+            setLoading(false);
+        }, (error) => {
+            handleFirestoreError(error, OperationType.LIST, 'projects', user?.uid, user?.email);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [user]);
+
     const container = {
         hidden: { opacity: 0 },
         show: {
@@ -21,6 +64,17 @@ const OverviewView: React.FC<OverviewViewProps> = ({ setActiveTab }) => {
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0 }
     };
+
+    if (loading) {
+        return (
+            <div className="flex-1 flex items-center justify-center bg-[#fafbfd]">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 size={48} className="text-blue-600 animate-spin" />
+                    <p className="text-gray-500 font-bold text-xl">Initializing Dashboard...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <motion.div 
@@ -41,10 +95,10 @@ const OverviewView: React.FC<OverviewViewProps> = ({ setActiveTab }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 {[
-                    { label: 'Total Processing', value: '45,210', trend: '+12% this week', trendColor: 'text-green-600', trendBg: 'bg-green-50', icon: Briefcase, iconColor: 'text-blue-600' },
-                    { label: 'Active Projects', value: '14', sub: 'Across 6 Clients', icon: Users, iconColor: 'text-purple-600' },
-                    { label: 'AI Rejected', value: '842', trend: '1.8% Error Rate', trendColor: 'text-red-600', trendBg: 'bg-red-50', icon: AlertCircle, iconColor: 'text-red-600' },
-                    { label: 'Ready to Print', value: '12,400', isDark: true, icon: FileCheck, iconColor: 'text-[#0e30f1]' },
+                    { label: 'Total Processing', value: stats.totalProcessing.toLocaleString(), trend: '+12% this week', trendColor: 'text-green-600', trendBg: 'bg-green-50', icon: Briefcase, iconColor: 'text-blue-600' },
+                    { label: 'Active Projects', value: stats.activeProjects.toString(), sub: `Across ${stats.clientsCount} Clients`, icon: Users, iconColor: 'text-purple-600' },
+                    { label: 'AI Rejected', value: stats.aiRejected.toString(), trend: '1.8% Error Rate', trendColor: 'text-red-600', trendBg: 'bg-red-50', icon: AlertCircle, iconColor: 'text-red-600' },
+                    { label: 'Ready to Print', value: stats.readyToPrint.toLocaleString(), isDark: true, icon: FileCheck, iconColor: 'text-[#0e30f1]' },
                 ].map((stat, i) => (
                     <motion.div 
                         key={i} 
@@ -89,29 +143,30 @@ const OverviewView: React.FC<OverviewViewProps> = ({ setActiveTab }) => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 text-sm">
-                                    {[
-                                        { name: "2026 Session ID Cards", client: "St. Xavier's", progress: 85, color: 'bg-blue-600' },
-                                        { name: "Annual Staff IDs", client: "TechCorp India", progress: 40, color: 'bg-purple-600' },
-                                        { name: "Student Badges", client: "Delhi Public School", progress: 10, color: 'bg-orange-600' }
-                                    ].map((item, i) => (
-                                        <tr key={i} className="hover:bg-gray-50 transition-colors group">
+                                    {recentProjects.map((item, i) => (
+                                        <tr key={item.id} className="hover:bg-gray-50 transition-colors group">
                                             <td className="px-6 py-4 font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{item.name}</td>
-                                            <td className="px-6 py-4 text-gray-600 font-medium">{item.client}</td>
+                                            <td className="px-6 py-4 text-gray-600 font-medium">{item.client || 'Unknown'}</td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-full bg-gray-200 rounded-full h-2 max-w-[120px] overflow-hidden">
                                                         <motion.div 
                                                             initial={{ width: 0 }}
-                                                            animate={{ width: `${item.progress}%` }}
+                                                            animate={{ width: `${item.status === 'completed' ? 100 : item.status === 'in-progress' ? 50 : 10}%` }}
                                                             transition={{ duration: 1, delay: 0.5 }}
-                                                            className={`${item.color} h-2 rounded-full`}
+                                                            className={`${item.status === 'completed' ? 'bg-green-600' : 'bg-blue-600'} h-2 rounded-full`}
                                                         ></motion.div>
                                                     </div>
-                                                    <span className="text-xs font-bold text-gray-700">{item.progress}%</span>
+                                                    <span className="text-xs font-bold text-gray-700">{item.status === 'completed' ? 100 : item.status === 'in-progress' ? 50 : 10}%</span>
                                                 </div>
                                             </td>
                                         </tr>
                                     ))}
+                                    {recentProjects.length === 0 && (
+                                        <tr>
+                                            <td colSpan={3} className="px-6 py-8 text-center text-gray-500">No active projects</td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>

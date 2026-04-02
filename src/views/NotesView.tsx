@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StickyNote, Plus, Trash2, Palette, Search, X, Check } from 'lucide-react';
-import { db, auth, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, orderBy, Timestamp, handleFirestoreError, OperationType } from '../firebase';
+import { db, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, orderBy, Timestamp, handleFirestoreError, OperationType } from '../firebase';
 import { motion, AnimatePresence } from 'motion/react';
+import { useUser } from '../App';
 
 interface Note {
     id: string;
@@ -28,13 +29,14 @@ const NotesView: React.FC = () => {
     const [isAdding, setIsAdding] = useState(false);
     const [newNote, setNewNote] = useState({ title: '', content: '', color: 'bg-white' });
     const [searchQuery, setSearchQuery] = useState('');
+    const { user } = useUser();
 
     useEffect(() => {
-        if (!auth.currentUser) return;
+        if (!user) return;
 
         const q = query(
             collection(db, 'notes'),
-            where('userId', '==', auth.currentUser.uid),
+            where('userId', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
 
@@ -45,41 +47,43 @@ const NotesView: React.FC = () => {
             });
             setNotes(fetchedNotes);
         }, (error) => {
-            handleFirestoreError(error, OperationType.GET, 'notes');
+            handleFirestoreError(error, OperationType.GET, 'notes', user.uid, user.email);
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [user]);
 
     const handleAddNote = async () => {
-        if (!newNote.content.trim() || !auth.currentUser) return;
+        if (!newNote.content.trim() || !user) return;
 
         try {
             await addDoc(collection(db, 'notes'), {
                 ...newNote,
                 createdAt: Timestamp.now(),
-                userId: auth.currentUser.uid
+                userId: user.uid
             });
             setNewNote({ title: '', content: '', color: 'bg-white' });
             setIsAdding(false);
         } catch (error) {
-            handleFirestoreError(error, OperationType.CREATE, 'notes');
+            handleFirestoreError(error, OperationType.CREATE, 'notes', user.uid, user.email);
         }
     };
 
     const handleDeleteNote = async (id: string) => {
+        if (!user) return;
         try {
             await deleteDoc(doc(db, 'notes', id));
         } catch (error) {
-            handleFirestoreError(error, OperationType.DELETE, `notes/${id}`);
+            handleFirestoreError(error, OperationType.DELETE, `notes/${id}`, user.uid, user.email);
         }
     };
 
     const updateNoteColor = async (id: string, color: string) => {
+        if (!user) return;
         try {
             await updateDoc(doc(db, 'notes', id), { color });
         } catch (error) {
-            handleFirestoreError(error, OperationType.UPDATE, `notes/${id}`);
+            handleFirestoreError(error, OperationType.UPDATE, `notes/${id}`, user.uid, user.email);
         }
     };
 

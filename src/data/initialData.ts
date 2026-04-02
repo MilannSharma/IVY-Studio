@@ -1,11 +1,11 @@
 import { Project, Config } from '../types';
 
 export const initialProjects: Project[] = [
-    { id: 1, name: "St. Xavier's 2026 Session", client: "St. Xavier's High School", type: "School", status: "Active", entries: 1250 },
-    { id: 2, name: "TechCorp Employee IDs", client: "TechCorp India", type: "Company", status: "Draft", entries: 400 },
-    { id: 3, name: "Allen Batch B", client: "Allen Coaching", type: "Coaching", status: "Active", entries: 3500 },
-    { id: 4, name: "Summit 2026 Badges", client: "Global Summit", type: "Event", status: "Completed", entries: 800 },
-    { id: 5, name: "Delhi Public School Q1", client: "DPS Delhi", type: "School", status: "Print Ready", entries: 2100 },
+    { id: "1", name: "St. Xavier's 2026 Session", client: "St. Xavier's High School", clientId: "client1", type: "School", status: "in-progress", entries: 1250, createdAt: new Date() },
+    { id: "2", name: "TechCorp Employee IDs", client: "TechCorp India", clientId: "client2", type: "Company", status: "pending", entries: 400, createdAt: new Date() },
+    { id: "3", name: "Allen Batch B", client: "Allen Coaching", clientId: "client3", type: "Coaching", status: "in-progress", entries: 3500, createdAt: new Date() },
+    { id: "4", name: "Summit 2026 Badges", client: "Global Summit", clientId: "client4", type: "Event", status: "completed", entries: 800, createdAt: new Date() },
+    { id: "5", name: "Delhi Public School Q1", client: "DPS Delhi", clientId: "client5", type: "School", status: "completed", entries: 2100, createdAt: new Date() },
 ];
 
 export const initialConfig: Config = {

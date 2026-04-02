@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { Project } from '../../types';
 import CustomSelect from '../CustomSelect';
+import { db, collection, addDoc, handleFirestoreError, OperationType, Timestamp } from '../../firebase';
+import { useUser } from '../../App';
 
 interface AddProjectModalProps {
   isOpen: boolean;
@@ -11,22 +13,42 @@ interface AddProjectModalProps {
 
 const AddProjectModal: React.FC<AddProjectModalProps> = ({ isOpen, onClose, onAdd }) => {
     const [projectType, setProjectType] = useState('School');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { user } = useUser();
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (!user) return;
+
+        setIsSubmitting(true);
         const formData = new FormData(e.currentTarget);
-        const newProject: Project = {
-            id: Date.now(),
-            name: formData.get('name') as string,
-            client: formData.get('client') as string,
-            type: projectType,
-            status: 'Draft',
-            entries: 0
-        };
-        onAdd(newProject);
-        onClose();
+        
+        try {
+            const projectData = {
+                name: formData.get('name') as string,
+                client: formData.get('client') as string, // For backward compatibility
+                clientId: user.uid,
+                type: projectType,
+                status: 'pending' as const,
+                entries: 0,
+                createdAt: Timestamp.now(),
+            };
+
+            const docRef = await addDoc(collection(db, 'projects'), projectData);
+            
+            onAdd({
+                id: docRef.id,
+                ...projectData
+            } as Project);
+            
+            onClose();
+        } catch (error) {
+            handleFirestoreError(error, OperationType.CREATE, 'projects', user.uid, user.email);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const typeOptions = [
@@ -65,7 +87,14 @@ const AddProjectModal: React.FC<AddProjectModalProps> = ({ isOpen, onClose, onAd
                     </div>
                     <div className="pt-4 flex gap-3 justify-end">
                         <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">Cancel</button>
-                        <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-[#0e30f1] hover:bg-blue-700 rounded-lg shadow-sm">Create Project</button>
+                        <button 
+                            type="submit" 
+                            disabled={isSubmitting}
+                            className="px-4 py-2 text-sm font-medium text-white bg-[#0e30f1] hover:bg-blue-700 rounded-lg shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                            {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+                            {isSubmitting ? 'Creating...' : 'Create Project'}
+                        </button>
                     </div>
                 </form>
             </div>

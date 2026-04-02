@@ -17,7 +17,7 @@ import {
   CheckSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { auth, logOut } from '../firebase';
+import { useUser } from '../App';
 import { useToast } from './Toast';
 
 interface SidebarProps {
@@ -28,11 +28,11 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     const [isCollapsed, setIsCollapsed] = useState(true);
     const { addToast } = useToast();
-    const user = auth.currentUser;
+    const { user, logout } = useUser();
 
     const handleLogout = async () => {
         try {
-            await logOut();
+            logout();
             addToast('Logged out successfully', 'success');
         } catch (error) {
             addToast('Logout failed', 'error');

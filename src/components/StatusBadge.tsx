@@ -6,15 +6,22 @@ interface StatusBadgeProps {
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
     const colors: Record<string, string> = {
-        'Active': 'bg-[#e2f5ec] text-[#1b7e4f]',
-        'Draft': 'bg-gray-100 text-gray-700',
-        'Completed': 'bg-blue-50 text-blue-700',
-        'Print Ready': 'bg-purple-50 text-purple-700',
+        'in-progress': 'bg-[#e2f5ec] text-[#1b7e4f]',
+        'pending': 'bg-gray-100 text-gray-700',
+        'completed': 'bg-blue-50 text-blue-700',
+        'cancelled': 'bg-red-50 text-red-700',
+    };
+
+    const labelMap: Record<string, string> = {
+        'in-progress': 'Active',
+        'pending': 'Draft',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled',
     };
 
     return (
         <span className={`px-2.5 py-1 text-xs font-semibold rounded-md ${colors[status] || 'bg-gray-100'}`}>
-            {status}
+            {labelMap[status] || status}
         </span>
     );
 };

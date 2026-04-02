@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, FileText, Users, Briefcase, Copy, Check } from 'lucide-react';
+import { X, FileText, Users, Briefcase, Copy, Check, Loader2 } from 'lucide-react';
 import { Project } from '../../types';
+import { db, collection, addDoc, handleFirestoreError, OperationType, Timestamp } from '../../firebase';
+import { useUser } from '../../App';
 
 interface CopyProjectModalProps {
   isOpen: boolean;
@@ -17,7 +19,9 @@ const CopyProjectModal: React.FC<CopyProjectModalProps> = ({ isOpen, project, on
         groups: true,
         records: false,
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [copied, setCopied] = useState(false);
+    const { user } = useUser();
 
     useEffect(() => {
         if (project) {
@@ -25,6 +29,7 @@ const CopyProjectModal: React.FC<CopyProjectModalProps> = ({ isOpen, project, on
             setSessionName('');
             setCopyOptions({ template: true, groups: true, records: false });
             setCopied(false);
+            setIsSubmitting(false);
         }
     }, [project]);
 
@@ -32,19 +37,37 @@ const CopyProjectModal: React.FC<CopyProjectModalProps> = ({ isOpen, project, on
 
     const toggleOption = (key: keyof typeof copyOptions) => setCopyOptions(prev => ({ ...prev, [key]: !prev[key] }));
 
-    const handleCopy = () => {
-        setCopied(true);
-        setTimeout(() => {
-            const newProject: Project = {
-                ...project,
-                id: Date.now(),
+    const handleCopy = async () => {
+        if (!user) return;
+        
+        setIsSubmitting(true);
+        try {
+            const projectData = {
                 name: projectName || `${project.name} — Copy`,
-                session: sessionName || undefined,
-                status: 'Draft',
-                entries: copyOptions.records ? project.entries : 0,
+                client: project.client,
+                clientId: user.uid,
+                type: project.type,
+                status: 'pending' as const,
+                entries: copyOptions.records ? (project.entries || 0) : 0,
+                createdAt: Timestamp.now(),
+                // In a real app, we would also copy subcollections based on copyOptions
             };
-            onCopy(newProject);
-        }, 600);
+
+            const docRef = await addDoc(collection(db, 'projects'), projectData);
+            
+            setCopied(true);
+            setTimeout(() => {
+                onCopy({
+                    id: docRef.id,
+                    ...projectData
+                } as Project);
+                onClose();
+            }, 600);
+        } catch (error) {
+            handleFirestoreError(error, OperationType.CREATE, 'projects', user.uid, user.email);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const optionConfig = [
@@ -120,10 +143,16 @@ const CopyProjectModal: React.FC<CopyProjectModalProps> = ({ isOpen, project, on
                     </button>
                     <button
                         onClick={handleCopy}
-                        disabled={copied || !projectName.trim()}
+                        disabled={copied || !projectName.trim() || isSubmitting}
                         className={`flex-1 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all ${copied ? 'bg-green-500 text-white' : 'bg-[#0e30f1] text-white hover:bg-blue-700 shadow-md disabled:opacity-50'}`}
                     >
-                        {copied ? <><Check size={16} strokeWidth={3} /> Copied!</> : <><Copy size={15} /> Copy Project</>}
+                        {isSubmitting ? (
+                            <><Loader2 size={16} className="animate-spin" /> Copying...</>
+                        ) : copied ? (
+                            <><Check size={16} strokeWidth={3} /> Copied!</>
+                        ) : (
+                            <><Copy size={15} /> Copy Project</>
+                        )}
                     </button>
                 </div>
             </div>

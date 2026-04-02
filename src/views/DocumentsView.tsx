@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Upload, Trash2, Download, Search, Plus, File, Image, FileCode, FileArchive } from 'lucide-react';
-import { db, storage, auth, collection, addDoc, onSnapshot, query, where, orderBy, Timestamp, handleFirestoreError, OperationType, deleteDoc, doc } from '../firebase';
+import { db, storage, collection, addDoc, onSnapshot, query, where, orderBy, Timestamp, handleFirestoreError, OperationType, deleteDoc, doc } from '../firebase';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { motion, AnimatePresence } from 'motion/react';
+import { useUser } from '../App';
 
 interface Document {
     id: string;
@@ -19,13 +20,14 @@ const DocumentsView: React.FC = () => {
     const [isUploading, setIsUploading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [uploadProgress, setUploadProgress] = useState(0);
+    const { user } = useUser();
 
     useEffect(() => {
-        if (!auth.currentUser) return;
+        if (!user) return;
 
         const q = query(
             collection(db, 'documents'),
-            where('userId', '==', auth.currentUser.uid),
+            where('userId', '==', user.uid),
             orderBy('uploadedAt', 'desc')
         );
 
@@ -36,21 +38,21 @@ const DocumentsView: React.FC = () => {
             });
             setDocuments(docs);
         }, (error) => {
-            handleFirestoreError(error, OperationType.GET, 'documents');
+            handleFirestoreError(error, OperationType.GET, 'documents', user.uid, user.email);
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [user]);
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file || !auth.currentUser) return;
+        if (!file || !user) return;
 
         setIsUploading(true);
         setUploadProgress(0);
 
         try {
-            const storageRef = ref(storage, `documents/${auth.currentUser.uid}/${Date.now()}_${file.name}`);
+            const storageRef = ref(storage, `documents/${user.uid}/${Date.now()}_${file.name}`);
             const snapshot = await uploadBytes(storageRef, file);
             const downloadURL = await getDownloadURL(snapshot.ref);
 
@@ -60,7 +62,7 @@ const DocumentsView: React.FC = () => {
                 type: file.type,
                 size: file.size,
                 uploadedAt: Timestamp.now(),
-                userId: auth.currentUser.uid,
+                userId: user.uid,
                 storagePath: snapshot.ref.fullPath
             });
 
@@ -74,6 +76,7 @@ const DocumentsView: React.FC = () => {
     };
 
     const deleteDocument = async (docId: string, storagePath?: string) => {
+        if (!user) return;
         if (!window.confirm('Are you sure you want to delete this document?')) return;
         try {
             if (storagePath) {
@@ -82,7 +85,7 @@ const DocumentsView: React.FC = () => {
             }
             await deleteDoc(doc(db, 'documents', docId));
         } catch (error) {
-            handleFirestoreError(error, OperationType.DELETE, `documents/${docId}`);
+            handleFirestoreError(error, OperationType.DELETE, `documents/${docId}`, user.uid, user.email);
         }
     };
 
