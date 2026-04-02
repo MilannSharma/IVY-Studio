@@ -1,0 +1,120 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: documents
+// Document ID: auto-generated
+// Fields:
+//   - name: string (required) - File name
+//   - url: string (required) - Download URL
+//   - type: string (optional) - MIME type
+//   - size: number (optional) - File size in bytes
+//   - uploadedAt: timestamp (required) - Upload time
+//   - userId: string (required) - Owner UID
+//
+// Collection: notes
+// Document ID: auto-generated
+// Fields:
+//   - title: string (optional) - Note title
+//   - content: string (required) - Note content
+//   - color: string (optional) - Note background color
+//   - createdAt: timestamp (required) - Creation time
+//   - updatedAt: timestamp (optional) - Last update time
+//   - userId: string (required) - Owner UID
+//
+// Collection: tasks
+// Document ID: auto-generated
+// Fields:
+//   - title: string (required) - Task description
+//   - date: string (required) - Task date (YYYY-MM-DD)
+//   - completed: bool (required) - Completion status
+//   - createdAt: timestamp (required) - Creation time
+//   - userId: string (required) - Owner UID
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+    
+    function incomingData() {
+      return request.resource.data;
+    }
+    
+    function userIdUnchanged() {
+      return !('userId' in incomingData()) || incomingData().userId == resource.data.userId;
+    }
+
+    function isValidDocument(data) {
+      return data.keys().hasAll(['name', 'url', 'uploadedAt', 'userId']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 255 &&
+             data.url is string && data.url.matches("^https://.*") &&
+             data.uploadedAt is timestamp &&
+             data.userId == request.auth.uid;
+    }
+
+    function isValidNote(data) {
+      return data.keys().hasAll(['content', 'createdAt', 'userId']) &&
+             data.content is string && data.content.size() > 0 && data.content.size() < 10000 &&
+             data.createdAt is timestamp &&
+             data.userId == request.auth.uid &&
+             (!('title' in data) || (data.title is string && data.title.size() < 255)) &&
+             (!('color' in data) || (data.color is string && data.color.size() < 50));
+    }
+
+    function isValidTask(data) {
+      return data.keys().hasAll(['title', 'date', 'completed', 'createdAt', 'userId']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 1000 &&
+             data.date is string && data.date.matches("^\\d{4}-\\d{2}-\\d{2}$") &&
+             data.completed is bool &&
+             data.createdAt is timestamp &&
+             data.userId == request.auth.uid;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /documents/{docId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidDocument(incomingData());
+      allow update: if isDocOwner() && isValidDocument(incomingData()) && userIdUnchanged();
+      allow delete: if isDocOwner();
+    }
+
+    match /notes/{noteId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidNote(incomingData());
+      allow update: if isDocOwner() && isValidNote(incomingData()) && userIdUnchanged();
+      allow delete: if isDocOwner();
+    }
+
+    match /tasks/{taskId} {
+      allow read: if isDocOwner();
+      allow create: if isAuthenticated() && isValidTask(incomingData());
+      allow update: if isDocOwner() && isValidTask(incomingData()) && userIdUnchanged();
+      allow delete: if isDocOwner();
+    }
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

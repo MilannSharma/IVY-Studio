@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "Document": {
+      "title": "Document",
+      "description": "A document uploaded to the system",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The name of the file" },
+        "url": { "type": "string", "description": "The download URL of the file" },
+        "type": { "type": "string", "description": "The MIME type of the file" },
+        "size": { "type": "number", "description": "The size of the file in bytes" },
+        "uploadedAt": { "type": "string", "format": "date-time", "description": "When the document was uploaded" },
+        "userId": { "type": "string", "description": "The ID of the user who uploaded the document" }
+      },
+      "required": ["name", "url", "uploadedAt", "userId"]
+    },
+    "Note": {
+      "title": "Note",
+      "description": "A simple text note",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The title of the note" },
+        "content": { "type": "string", "description": "The content of the note" },
+        "color": { "type": "string", "description": "The background color of the note" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the note was created" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "When the note was last updated" },
+        "userId": { "type": "string", "description": "The ID of the user who owns the note" }
+      },
+      "required": ["content", "createdAt", "userId"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "A daily task",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "The task description" },
+        "date": { "type": "string", "format": "date", "description": "The date for the task (YYYY-MM-DD)" },
+        "completed": { "type": "boolean", "description": "Whether the task is completed" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the task was created" },
+        "userId": { "type": "string", "description": "The ID of the user who owns the task" }
+      },
+      "required": ["title", "date", "completed", "createdAt", "userId"]
+    }
+  },
+  "firestore": {
+    "/documents/{docId}": {
+      "schema": "Document",
+      "description": "Collection of documents"
+    },
+    "/notes/{noteId}": {
+      "schema": "Note",
+      "description": "Collection of notes"
+    },
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Collection of daily tasks"
+    }
+  }
+}
