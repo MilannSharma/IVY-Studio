@@ -1,6 +1,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, Briefcase, Building2, Users, FileText, Sparkles, Settings, X, Command } from 'lucide-react';
+import { 
+    Search, 
+    Briefcase, 
+    Building2, 
+    Users, 
+    FileText, 
+    Sparkles, 
+    Settings, 
+    X, 
+    Command,
+    CheckSquare,
+    ShoppingCart,
+    CreditCard,
+    TrendingUp,
+    PieChart,
+    Wallet,
+    Calendar,
+    Package,
+    AlertCircle,
+    MessageCircle,
+    MessageSquare,
+    StickyNote
+} from 'lucide-react';
 
 interface CommandPaletteProps {
     isOpen: boolean;
@@ -13,12 +35,25 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
 
     const items = [
         { id: 'overview', label: 'Overview Dashboard', icon: Search, category: 'Navigation' },
-        { id: 'projects', label: 'Project Management', icon: Briefcase, category: 'Navigation' },
-        { id: 'templates', label: 'ID Card Templates', icon: FileText, category: 'Navigation' },
-        { id: 'ai-insights', label: 'AI Quality Insights', icon: Sparkles, category: 'Navigation' },
-        { id: 'clients', label: 'Clients Directory', icon: Building2, category: 'Navigation' },
-        { id: 'team', label: 'Team Management', icon: Users, category: 'Navigation' },
-        { id: 'settings', label: 'System Configuration', icon: Settings, category: 'Navigation' },
+        { id: 'projects', label: 'Projects', icon: Briefcase, category: 'Projects & Workflow' },
+        { id: 'project-tasks', label: 'Project Tasks', icon: CheckSquare, category: 'Projects & Workflow' },
+        { id: 'print-orders', label: 'Print Orders', icon: FileText, category: 'Projects & Workflow' },
+        { id: 'ai-insights', label: 'AI Quality', icon: Sparkles, category: 'Projects & Workflow' },
+        { id: 'templates', label: 'Templates', icon: FileText, category: 'Projects & Workflow' },
+        { id: 'documents', label: 'Documents', icon: FileText, category: 'Projects & Workflow' },
+        { id: 'client-orders', label: 'Client Orders', icon: ShoppingCart, category: 'Orders & Sales' },
+        { id: 'transactions', label: 'Transactions', icon: CreditCard, category: 'Orders & Sales' },
+        { id: 'sales-revenue', label: 'Sales & Revenue', icon: TrendingUp, category: 'Finance & Analytics' },
+        { id: 'profit-margin', label: 'Profit & Margin', icon: PieChart, category: 'Finance & Analytics' },
+        { id: 'client-dues', label: 'Client Dues', icon: Wallet, category: 'Finance & Analytics' },
+        { id: 'expected-orders', label: 'Expected Orders', icon: Calendar, category: 'Finance & Analytics' },
+        { id: 'items-rates', label: 'Items & Rates', icon: Package, category: 'Items & Pricing' },
+        { id: 'clients', label: 'Clients', icon: Building2, category: 'Clients & Team' },
+        { id: 'team', label: 'Staff', icon: Users, category: 'Clients & Team' },
+        { id: 'complaints', label: 'Complaints', icon: AlertCircle, category: 'Operations' },
+        { id: 'whatsapp', label: 'WhatsApp Integration', icon: MessageCircle, category: 'Operations' },
+        { id: 'notes', label: 'Notes', icon: StickyNote, category: 'Tools' },
+        { id: 'settings', label: 'Configuration', icon: Settings, category: 'Tools' },
     ];
 
     const filteredItems = items.filter(item => 

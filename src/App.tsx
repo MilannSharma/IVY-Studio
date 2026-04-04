@@ -36,6 +36,19 @@ export const useUser = () => {
     return context;
 };
 
+const ComingSoonView = ({ title }: { title: string }) => (
+    <div className="flex-1 flex flex-col items-center justify-center bg-[#fafbfd] p-8 text-center">
+        <div className="w-20 h-20 bg-blue-50 rounded-3xl flex items-center justify-center mb-6 text-blue-600">
+            <Sparkles size={40} />
+        </div>
+        <h2 className="text-3xl font-black text-gray-900 tracking-tight mb-2">{title}</h2>
+        <p className="text-gray-500 max-w-md font-medium">This module is currently under development and will be available in the next update. Stay tuned!</p>
+        <button className="mt-8 px-6 py-2.5 bg-[#0e30f1] text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all">
+            Get Notified
+        </button>
+    </div>
+);
+
 export default function App() {
     const [activeTab, setActiveTab] = useState('overview');
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -162,6 +175,17 @@ export default function App() {
             documents: <DocumentsView />,
             notes: <NotesView />,
             tasks: <TasksView />,
+            'project-tasks': <ComingSoonView title="Project Tasks" />,
+            'print-orders': <ComingSoonView title="Print Orders" />,
+            'client-orders': <ComingSoonView title="Client Orders" />,
+            transactions: <ComingSoonView title="Transactions" />,
+            'sales-revenue': <ComingSoonView title="Sales & Revenue" />,
+            'profit-margin': <ComingSoonView title="Profit & Margin" />,
+            'client-dues': <ComingSoonView title="Client Dues" />,
+            'expected-orders': <ComingSoonView title="Expected Orders" />,
+            'items-rates': <ComingSoonView title="Items & Rates" />,
+            complaints: <ComingSoonView title="Complaints" />,
+            whatsapp: <ComingSoonView title="WhatsApp Integration" />,
         };
 
         return (

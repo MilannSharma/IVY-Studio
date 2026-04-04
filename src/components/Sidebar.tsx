@@ -7,14 +7,21 @@ import {
   Building2 as Building, 
   Users, 
   Settings,
-  ChevronLeft,
-  ChevronRight,
   LogOut,
   Menu,
   MessageSquare,
   FileText,
   StickyNote,
-  CheckSquare
+  CheckSquare,
+  ShoppingCart,
+  CreditCard,
+  TrendingUp,
+  PieChart,
+  Wallet,
+  Calendar,
+  Package,
+  AlertCircle,
+  MessageCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useUser } from '../App';
@@ -52,30 +59,59 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             title: 'Workspace',
             items: [
                 { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+            ]
+        },
+        {
+            title: 'Projects & Workflow',
+            items: [
                 { id: 'projects', label: 'Projects', icon: Briefcase },
+                { id: 'project-tasks', label: 'Project Tasks', icon: CheckSquare },
+                { id: 'print-orders', label: 'Print Orders', icon: FileText },
+                { id: 'ai-insights', label: 'AI Quality', icon: Sparkles },
                 { id: 'templates', label: 'Templates', icon: FileLayout },
+                { id: 'documents', label: 'Documents', icon: FileText },
+            ]
+        },
+        {
+            title: 'Orders & Sales',
+            items: [
+                { id: 'client-orders', label: 'Client Orders', icon: ShoppingCart },
+                { id: 'transactions', label: 'Transactions', icon: CreditCard },
+            ]
+        },
+        {
+            title: 'Finance & Analytics',
+            items: [
+                { id: 'sales-revenue', label: 'Sales & Revenue', icon: TrendingUp },
+                { id: 'profit-margin', label: 'Profit & Margin', icon: PieChart },
+                { id: 'client-dues', label: 'Client Dues', icon: Wallet },
+                { id: 'expected-orders', label: 'Expected Orders', icon: Calendar },
+            ]
+        },
+        {
+            title: 'Items & Pricing',
+            items: [
+                { id: 'items-rates', label: 'Items & Rates', icon: Package },
+            ]
+        },
+        {
+            title: 'Clients & Team',
+            items: [
+                { id: 'clients', label: 'Clients', icon: Building },
+                { id: 'team', label: 'Staff', icon: Users },
+            ]
+        },
+        {
+            title: 'Operations',
+            items: [
+                { id: 'complaints', label: 'Complaints', icon: AlertCircle },
+                { id: 'whatsapp', label: 'WhatsApp Integration', icon: MessageCircle },
             ]
         },
         {
             title: 'Tools',
             items: [
-                { id: 'assistant', label: 'IVY copilot', icon: MessageSquare },
-                { id: 'documents', label: 'Documents', icon: FileText },
                 { id: 'notes', label: 'Notes', icon: StickyNote },
-                { id: 'tasks', label: 'Daily Tasks', icon: CheckSquare },
-            ]
-        },
-        {
-            title: 'Clients',
-            items: [
-                { id: 'clients', label: 'Clients', icon: Building },
-                { id: 'ai-insights', label: 'AI Quality', icon: Sparkles },
-            ]
-        },
-        {
-            title: 'Admin',
-            items: [
-                { id: 'team', label: 'Team', icon: Users },
                 { id: 'settings', label: 'Configuration', icon: Settings },
             ]
         }
