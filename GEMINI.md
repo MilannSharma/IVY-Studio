@@ -2,7 +2,7 @@
 
 ## API Key
 The user has provided a specific API key for Gemini AI:
-`AIzaSyBQ0KlmgJu5eDnNUTBfGLhQGPzaPfjD61o`
+`Your Api key `
 
 ## Model Preferences
 - **Primary Model**: `gemini-3-flash-preview` for general chat and fast actions.
