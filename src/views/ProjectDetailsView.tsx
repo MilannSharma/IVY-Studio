@@ -107,6 +107,12 @@ const ProjectDetailsView: React.FC<ProjectDetailsViewProps> = ({ project, onBack
                         <p className="text-xs text-gray-500 font-medium mt-0.5">Client: {project.client} • Type: {project.type} • ID: PRJ-{1000 + project.id}</p>
                     </div>
                     <div className="ml-auto flex gap-3">
+                        <button 
+                            className="px-4 py-2 bg-purple-50 text-purple-600 border border-purple-200 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-purple-100 shadow-sm transition-colors"
+                        >
+                            <Sparkles size={16} />
+                            AI Insights
+                        </button>
                         <button onClick={() => setActiveTab('settings')} className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 shadow-sm transition-colors">Edit Settings</button>
                         <button className="px-4 py-2 bg-[#0e30f1] text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-blue-700 shadow-sm transition-colors">
                             Generate Print Job

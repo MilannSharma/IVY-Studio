@@ -47,7 +47,8 @@ const CopyProjectModal: React.FC<CopyProjectModalProps> = ({ isOpen, project, on
                 client: project.client,
                 clientId: user.uid,
                 type: project.type,
-                status: 'pending' as const,
+                status: 'initialized' as const,
+                stage: project.stage || 'Active',
                 entries: copyOptions.records ? (project.entries || 0) : 0,
                 createdAt: Timestamp.now(),
                 // In a real app, we would also copy subcollections based on copyOptions

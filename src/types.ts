@@ -10,7 +10,8 @@ export interface Project {
   id: string;
   name: string;
   description?: string;
-  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
+  status: 'pending' | 'in-progress' | 'completed' | 'cancelled' | 'on-hold' | 'initialized';
+  stage: 'Active' | 'Inactive';
   clientId: string;
   printerId?: string;
   createdAt: any; // Firestore Timestamp

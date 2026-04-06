@@ -7,7 +7,6 @@ import {
   Building2 as Building, 
   Users, 
   Settings,
-  LogOut,
   Menu,
   MessageSquare,
   FileText,
@@ -35,16 +34,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     const [isCollapsed, setIsCollapsed] = useState(true);
     const { addToast } = useToast();
-    const { user, logout } = useUser();
-
-    const handleLogout = async () => {
-        try {
-            logout();
-            addToast('Logged out successfully', 'success');
-        } catch (error) {
-            addToast('Logout failed', 'error');
-        }
-    };
+    const { user } = useUser();
 
     const handleMouseEnter = () => {
         setIsCollapsed(false);
@@ -59,6 +49,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             title: 'Workspace',
             items: [
                 { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+            ]
+        },
+        {
+            title: 'Clients & Team',
+            items: [
+                { id: 'clients', label: 'Clients', icon: Building },
+                { id: 'team', label: 'Staff', icon: Users },
             ]
         },
         {
@@ -92,13 +89,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             title: 'Items & Pricing',
             items: [
                 { id: 'items-rates', label: 'Items & Rates', icon: Package },
-            ]
-        },
-        {
-            title: 'Clients & Team',
-            items: [
-                { id: 'clients', label: 'Clients', icon: Building },
-                { id: 'team', label: 'Staff', icon: Users },
             ]
         },
         {
@@ -240,33 +230,21 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
                 ))}
             </div>
 
-            {/* User Profile & Collapse Toggle */}
+            {/* Brand Section */}
             <div className="p-3 border-t border-[#2a2f3f] bg-[#1a1e29]/50 backdrop-blur-sm">
                 <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
-                    {user?.photoURL ? (
-                        <img src={user.photoURL} alt="Profile" className="w-8 h-8 rounded-full border border-[#2a2f3f]" referrerPolicy="no-referrer" />
-                    ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0 border border-[#2a2f3f]">
-                            {user?.displayName?.charAt(0) || 'U'}
-                        </div>
-                    )}
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0 border border-[#2a2f3f]">
+                        IVY
+                    </div>
                     {!isCollapsed && (
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             className="flex-1 min-w-0"
                         >
-                            <p className="text-xs font-bold text-white truncate">{user?.displayName || 'User'}</p>
-                            <p className="text-[9px] text-gray-500 font-semibold uppercase tracking-wider">Vendor Admin</p>
+                            <p className="text-xs font-bold text-white truncate">IVY Studio</p>
+                            <p className="text-[9px] text-gray-500 font-semibold uppercase tracking-wider">Vendor</p>
                         </motion.div>
-                    )}
-                    {!isCollapsed && (
-                        <button 
-                            onClick={handleLogout}
-                            className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
-                        >
-                            <LogOut size={14} />
-                        </button>
                     )}
                 </div>
             </div>

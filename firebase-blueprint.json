@@ -99,6 +99,43 @@
         "userId": { "type": "string", "description": "UID of the user who owns the task." }
       },
       "required": ["title", "date", "completed", "createdAt", "userId"]
+    },
+    "clients": {
+      "title": "Client",
+      "description": "Represents a client or organization.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the client." },
+        "name": { "type": "string", "description": "Full name of the client or company." },
+        "email": { "type": "string", "format": "email", "description": "Email address." },
+        "phone": { "type": "string", "description": "Phone number." },
+        "type": { "type": "string", "description": "Type of client (e.g., School, Company)." },
+        "contact": { "type": "string", "description": "Primary contact person." },
+        "status": { "type": "string", "enum": ["Active", "Inactive"], "description": "Current status." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the client was created." }
+      },
+      "required": ["name", "email", "status", "createdAt"]
+    },
+    "staff": {
+      "title": "Staff Member",
+      "description": "Represents a staff member or employee.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the staff member." },
+        "name": { "type": "string", "description": "Full name of the staff member." },
+        "email": { "type": "string", "format": "email", "description": "Email address." },
+        "phone": { "type": "string", "description": "Contact number." },
+        "role": { "type": "string", "enum": ["Staff", "Salesperson", "Credit_manager", "Accounts", "Admin"], "description": "Role of the staff member." },
+        "address": { "type": "string", "description": "Full address." },
+        "pincode": { "type": "string", "description": "Pincode." },
+        "city": { "type": "string", "description": "City." },
+        "state": { "type": "string", "description": "State." },
+        "district": { "type": "string", "description": "District." },
+        "status": { "type": "string", "enum": ["Active", "Inactive"], "description": "Current status." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when the staff member was created." },
+        "createdBy": { "type": "string", "description": "UID of the user who added the staff member." }
+      },
+      "required": ["name", "email", "role", "status", "createdAt"]
     }
   },
   "firestore": {
@@ -109,6 +146,10 @@
     "/projects/{projectId}": {
       "schema": "projects",
       "description": "Project documents."
+    },
+    "/clients/{clientId}": {
+      "schema": "clients",
+      "description": "Client documents."
     },
     "/projects/{projectId}/idCards/{idCardId}": {
       "schema": "idCards",
@@ -129,6 +170,10 @@
     "/tasks/{taskId}": {
       "schema": "tasks",
       "description": "User tasks."
+    },
+    "/staff/{staffId}": {
+      "schema": "staff",
+      "description": "Staff member documents."
     }
   }
 }

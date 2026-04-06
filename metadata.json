@@ -1,5 +1,5 @@
 {
   "name": "IvyPrint",
   "description": "Project management platform for ID card printing and AI insights.",
-  "requestFramePermissions": []
+  "requestFramePermissions": ["microphone"]
 }

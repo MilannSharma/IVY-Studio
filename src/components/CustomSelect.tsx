@@ -89,38 +89,45 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             className="absolute top-full left-0 mt-[6px] w-full bg-white rounded-2xl border border-gray-100 shadow-xl z-50 p-1.5"
             style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}
           >
-            <div className="max-h-60 overflow-y-auto hide-scroll">
-              {options.map((option, index) => {
-                const isSelected = option.value === value;
-                return (
-                  <motion.button
-                    key={option.value}
-                    initial={{ opacity: 0, x: -4 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    onClick={() => {
-                      onChange(option.value);
-                      setIsOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
-                      isSelected
-                        ? 'bg-[#0e30f1]/8 text-[#0e30f1] font-semibold'
-                        : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      <span>{option.label}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {!isSelected && (
-                        <ArrowRight size={14} className="text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
-                      )}
-                      {isSelected && <Check size={14} className="shrink-0" />}
-                    </div>
-                  </motion.button>
-                );
-              })}
+            <div className="max-h-60 overflow-y-auto minimal-scrollbar pr-1" style={{ direction: 'rtl' }}>
+              <div style={{ direction: 'ltr' }}>
+                {options.map((option, index) => {
+                  const isSelected = option.value === value;
+                  return (
+                    <motion.button
+                      key={option.value}
+                      initial={{ opacity: 0, x: -4 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                      onClick={() => {
+                        onChange(option.value);
+                        setIsOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+                        isSelected
+                          ? 'bg-[#0e30f1]/8 text-[#0e30f1] font-semibold'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <span>{option.label}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {!isSelected && (
+                          <ArrowRight size={14} className="text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        )}
+                        {isSelected && <Check size={14} className="shrink-0" />}
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
             </div>
+            {options.length > 8 && (
+              <div className="flex justify-center py-1 text-gray-300 border-t border-gray-50 mt-1">
+                <ChevronDown size={14} className="animate-bounce" />
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

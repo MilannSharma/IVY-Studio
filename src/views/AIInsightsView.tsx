@@ -34,6 +34,14 @@ const AIInsightsView: React.FC = () => {
                     <p className="text-sm text-gray-500 mt-2">Monitor automated quality checks, facial recognition, and data validation.</p>
                 </div>
                 <div className="flex gap-3">
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="px-4 py-2 bg-purple-50 text-purple-600 border border-purple-200 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-purple-100 transition shadow-sm"
+                    >
+                        <Sparkles size={16} />
+                        Generate AI Report
+                    </motion.button>
                     <select className="border border-gray-300 rounded-lg px-4 py-2 text-sm font-semibold text-gray-700 bg-white outline-none focus:ring-2 focus:ring-purple-500 transition-all">
                         <option>Last 7 Days</option>
                         <option>Last 30 Days</option>
