@@ -19,7 +19,7 @@ const OverviewView: React.FC<OverviewViewProps> = ({ setActiveTab }) => {
         clientsCount: 0
     });
     const [recentProjects, setRecentProjects] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const { user } = useUser();
 
     const recentActivities = [
@@ -85,7 +85,7 @@ const OverviewView: React.FC<OverviewViewProps> = ({ setActiveTab }) => {
 
     return (
         <div className="flex-1 flex flex-col h-full bg-[#fafbfd] overflow-hidden">
-            <Header title="Overview" icon={<Activity size={20} />}>
+            <Header title="Overview" icon={<Activity size={20} />} setActiveTab={setActiveTab}>
                 <div className="hidden md:flex text-sm text-gray-500 bg-white border border-gray-200 px-4 py-2 rounded-lg shadow-sm font-medium items-center gap-2">
                     <Activity size={16} /> System Status: <span className="text-green-600 font-bold flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> All Systems Operational</span>
                 </div>

@@ -1,8 +1,13 @@
 import React from 'react';
 import { Sparkles, TrendingUp, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import Header from '../components/Header';
 
-const AIInsightsView: React.FC = () => {
+interface AIInsightsViewProps {
+    setActiveTab?: (tab: string) => void;
+}
+
+const AIInsightsView: React.FC<AIInsightsViewProps> = ({ setActiveTab }) => {
     const container = {
         hidden: { opacity: 0 },
         show: {
@@ -19,20 +24,8 @@ const AIInsightsView: React.FC = () => {
     };
 
     return (
-        <motion.div 
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="flex-1 overflow-y-auto bg-[#fafbfd] hide-scroll p-8"
-        >
-            <motion.div variants={item} className="flex justify-between items-center mb-8">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
-                        <div className="p-2 border border-purple-200 bg-purple-50 text-purple-600 rounded-lg"><Sparkles size={20} /></div>
-                        AI Processing Insights
-                    </h1>
-                    <p className="text-sm text-gray-500 mt-2">Monitor automated quality checks, facial recognition, and data validation.</p>
-                </div>
+        <div className="flex-1 flex flex-col h-full bg-[#fafbfd] overflow-hidden">
+            <Header title="AI Processing Insights" icon={<Sparkles size={20} />} setActiveTab={setActiveTab}>
                 <div className="flex gap-3">
                     <motion.button
                         whileHover={{ scale: 1.02 }}
@@ -55,7 +48,17 @@ const AIInsightsView: React.FC = () => {
                         Review Flagged Items (42)
                     </motion.button>
                 </div>
-            </motion.div>
+            </Header>
+
+            <motion.div 
+                variants={container}
+                initial="hidden"
+                animate="show"
+                className="flex-1 overflow-y-auto hide-scroll p-8"
+            >
+                <div className="mb-8">
+                    <p className="text-sm text-gray-500">Monitor automated quality checks, facial recognition, and data validation.</p>
+                </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 {[
@@ -153,6 +156,7 @@ const AIInsightsView: React.FC = () => {
                 </motion.div>
             </div>
         </motion.div>
+        </div>
     );
 };
 

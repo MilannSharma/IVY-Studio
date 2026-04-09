@@ -1,21 +1,32 @@
 import React, { useState } from 'react';
-import { Bell, Truck, CheckCircle2, Package, Clock, X } from 'lucide-react';
+import { Bell, Truck, CheckCircle2, Package, Clock, X, User as UserIcon, Shield, LogOut, ChevronDown, RefreshCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useUser } from '../App';
 
 interface HeaderProps {
     title: string;
     icon?: React.ReactNode;
     children?: React.ReactNode;
+    setActiveTab?: (tab: string) => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ title, icon, children }) => {
+const Header: React.FC<HeaderProps> = ({ title, icon, children, setActiveTab }) => {
     const [showNotifications, setShowNotifications] = useState(false);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
+    const { user, setUser } = useUser();
 
     const notifications = [
         { id: 1, title: 'Order Dispatched', desc: 'Order #8821 for St. Xavier\'s has been dispatched.', time: '5 mins ago', icon: Truck, color: 'text-blue-600', bg: 'bg-blue-50' },
         { id: 2, title: 'Delivery Confirmed', desc: 'Batch #441 has been delivered to TechCorp.', time: '1 hour ago', icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
         { id: 3, title: 'New Project Ready', desc: 'Project "Staff IDs" is ready for final print.', time: '3 hours ago', icon: Package, color: 'text-purple-600', bg: 'bg-purple-50' },
     ];
+
+    const handleSwitchProfile = () => {
+        if (!user) return;
+        const newRole = user.role === 'vendor' ? 'self' : 'vendor';
+        setUser({ ...user, role: newRole });
+        setShowProfileMenu(false);
+    };
 
     return (
         <header className="bg-white border-b border-gray-200 px-8 py-3.5 flex items-center justify-between z-30">
@@ -86,8 +97,114 @@ const Header: React.FC<HeaderProps> = ({ title, icon, children }) => {
                     </AnimatePresence>
                 </div>
 
-                <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-200 flex items-center justify-center bg-gray-100">
-                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=Felix`} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <div className="relative">
+                    <button 
+                        onClick={() => setShowProfileMenu(!showProfileMenu)}
+                        className={`flex items-center gap-2.5 pl-2 border-l border-gray-100 transition-all hover:opacity-80 ${showProfileMenu ? 'opacity-70' : ''}`}
+                    >
+                        <div className="text-right hidden sm:block">
+                            <p className="text-xs font-bold text-gray-900 leading-none mb-1">{user?.displayName}</p>
+                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider ${
+                                user?.role === 'vendor' 
+                                ? 'text-orange-600 bg-orange-50 border-orange-100' 
+                                : 'text-blue-600 bg-blue-50 border-blue-100'
+                            }`}>
+                                {user?.role || 'User'}
+                            </span>
+                        </div>
+                        <div className="w-9 h-9 rounded-xl overflow-hidden border border-gray-200 flex items-center justify-center bg-gray-100 shadow-sm relative">
+                            {user?.photoURL ? (
+                                <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            ) : (
+                                <UserIcon size={18} className="text-gray-400" />
+                            )}
+                        </div>
+                        <ChevronDown size={14} className={`text-gray-400 transition-transform duration-200 ${showProfileMenu ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    <AnimatePresence>
+                        {showProfileMenu && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)} />
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                    className="absolute right-0 mt-3 w-56 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                                >
+                                    <div className="p-2 space-y-1">
+                                        <button 
+                                            onClick={() => {
+                                                if (setActiveTab) setActiveTab('profile');
+                                                setShowProfileMenu(false);
+                                            }}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-xl transition-all group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                                                <UserIcon size={16} />
+                                            </div>
+                                            <span className="font-bold">My Profile</span>
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                if (setActiveTab) setActiveTab('security');
+                                                setShowProfileMenu(false);
+                                            }}
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600 rounded-xl transition-all group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                                                <Shield size={16} />
+                                            </div>
+                                            <span className="font-bold">Security</span>
+                                        </button>
+                                        
+                                        <div className="h-px bg-gray-100 mx-2 my-1" />
+                                        
+                                        <div className="px-3 py-2">
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Switch Profile</p>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <button 
+                                                    onClick={() => {
+                                                        if (user?.role !== 'vendor') handleSwitchProfile();
+                                                    }}
+                                                    className={`px-3 py-2 text-[10px] font-black uppercase rounded-lg border transition-all ${
+                                                        user?.role === 'vendor' 
+                                                        ? 'bg-orange-500 text-white border-orange-600 shadow-md' 
+                                                        : 'bg-white text-gray-400 border-gray-200 hover:border-orange-200 hover:text-orange-500'
+                                                    }`}
+                                                >
+                                                    Vendor
+                                                </button>
+                                                <button 
+                                                    onClick={() => {
+                                                        if (user?.role !== 'self') handleSwitchProfile();
+                                                    }}
+                                                    className={`px-3 py-2 text-[10px] font-black uppercase rounded-lg border transition-all ${
+                                                        user?.role === 'self' 
+                                                        ? 'bg-blue-600 text-white border-blue-700 shadow-md' 
+                                                        : 'bg-white text-gray-400 border-gray-200 hover:border-blue-200 hover:text-blue-500'
+                                                    }`}
+                                                >
+                                                    Self
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="h-px bg-gray-100 mx-2 my-1" />
+
+                                        <button 
+                                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-all group"
+                                        >
+                                            <div className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors">
+                                                <LogOut size={16} />
+                                            </div>
+                                            <span className="font-bold">Sign Out</span>
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </header>

@@ -3,7 +3,7 @@ export interface User {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
-  role: 'admin' | 'printer' | 'client';
+  role: 'admin' | 'printer' | 'client' | 'vendor' | 'self';
 }
 
 export interface Project {

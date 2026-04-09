@@ -25,11 +25,12 @@ import { useUser } from '../App';
 
 interface ProjectsViewProps {
   onSelectProject: (project: Project) => void;
+  setActiveTab?: (tab: string) => void;
 }
 
-const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) => {
+const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject, setActiveTab }) => {
     const [projects, setProjects] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState('');
     const [filterType, setFilterType] = useState('All');
     const [filterClient, setFilterClient] = useState('');
@@ -86,7 +87,7 @@ const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) => {
 
     return (
         <div className="flex-1 flex flex-col h-full bg-[#fafbfd] overflow-hidden">
-            <Header title="Project Management" icon={<LayoutDashboard size={20} />} />
+            <Header title="Project Management" icon={<LayoutDashboard size={20} />} setActiveTab={setActiveTab} />
 
             <div className="flex-1 overflow-y-auto p-8 hide-scroll">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

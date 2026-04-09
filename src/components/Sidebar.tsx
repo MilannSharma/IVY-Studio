@@ -20,7 +20,12 @@ import {
   Calendar,
   Package,
   AlertCircle,
-  MessageCircle
+  MessageCircle,
+  LogOut,
+  User as UserIcon,
+  ChevronUp,
+  ExternalLink,
+  Shield
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useUser } from '../App';
@@ -33,6 +38,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     const [isCollapsed, setIsCollapsed] = useState(true);
+    const [showUserMenu, setShowUserMenu] = useState(false);
     const { addToast } = useToast();
     const { user } = useUser();
 
@@ -42,70 +48,76 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
 
     const handleMouseLeave = () => {
         setIsCollapsed(true);
+        setShowUserMenu(false);
     };
 
     const menuGroups = [
         {
             title: 'Workspace',
             items: [
-                { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+                { id: 'overview', label: 'Overview', icon: LayoutDashboard, roles: ['admin', 'printer', 'client', 'vendor'] },
             ]
         },
         {
             title: 'Clients & Team',
             items: [
-                { id: 'clients', label: 'Clients', icon: Building },
-                { id: 'team', label: 'Staff', icon: Users },
+                { id: 'clients', label: 'Clients', icon: Building, roles: ['admin', 'printer', 'vendor'] },
+                { id: 'team', label: 'Staff', icon: Users, roles: ['admin', 'vendor'] },
             ]
         },
         {
             title: 'Projects & Workflow',
             items: [
-                { id: 'projects', label: 'Projects', icon: Briefcase },
-                { id: 'project-tasks', label: 'Project Tasks', icon: CheckSquare },
-                { id: 'print-orders', label: 'Print Orders', icon: FileText },
-                { id: 'ai-insights', label: 'AI Quality', icon: Sparkles },
-                { id: 'templates', label: 'Templates', icon: FileLayout },
-                { id: 'documents', label: 'Documents', icon: FileText },
+                { id: 'projects', label: 'Projects', icon: Briefcase, roles: ['admin', 'printer', 'client', 'vendor'] },
+                { id: 'project-tasks', label: 'Project Tasks', icon: CheckSquare, roles: ['admin', 'printer', 'vendor'] },
+                { id: 'print-orders', label: 'Print Orders', icon: FileText, roles: ['admin', 'printer', 'vendor'] },
+                { id: 'ai-insights', label: 'AI Quality', icon: Sparkles, roles: ['admin', 'vendor'] },
+                { id: 'templates', label: 'Templates', icon: FileLayout, roles: ['admin', 'printer', 'vendor'] },
+                { id: 'documents', label: 'Documents', icon: FileText, roles: ['admin', 'printer', 'client', 'vendor'] },
             ]
         },
         {
             title: 'Orders & Sales',
             items: [
-                { id: 'client-orders', label: 'Client Orders', icon: ShoppingCart },
-                { id: 'transactions', label: 'Transactions', icon: CreditCard },
+                { id: 'client-orders', label: 'Client Orders', icon: ShoppingCart, roles: ['admin', 'printer', 'client', 'vendor'] },
+                { id: 'transactions', label: 'Transactions', icon: CreditCard, roles: ['admin', 'vendor'] },
             ]
         },
         {
             title: 'Finance & Analytics',
             items: [
-                { id: 'sales-revenue', label: 'Sales & Revenue', icon: TrendingUp },
-                { id: 'profit-margin', label: 'Profit & Margin', icon: PieChart },
-                { id: 'client-dues', label: 'Client Dues', icon: Wallet },
-                { id: 'expected-orders', label: 'Expected Orders', icon: Calendar },
+                { id: 'sales-revenue', label: 'Sales & Revenue', icon: TrendingUp, roles: ['admin', 'vendor'] },
+                { id: 'profit-margin', label: 'Profit & Margin', icon: PieChart, roles: ['admin', 'vendor'] },
+                { id: 'client-dues', label: 'Client Dues', icon: Wallet, roles: ['admin', 'vendor'] },
+                { id: 'expected-orders', label: 'Expected Orders', icon: Calendar, roles: ['admin', 'vendor'] },
             ]
         },
         {
             title: 'Items & Pricing',
             items: [
-                { id: 'items-rates', label: 'Items & Rates', icon: Package },
+                { id: 'items-rates', label: 'Items & Rates', icon: Package, roles: ['admin', 'vendor'] },
             ]
         },
         {
             title: 'Operations',
             items: [
-                { id: 'complaints', label: 'Complaints', icon: AlertCircle },
-                { id: 'whatsapp', label: 'WhatsApp Integration', icon: MessageCircle },
+                { id: 'complaints', label: 'Complaints', icon: AlertCircle, roles: ['admin', 'printer', 'client', 'vendor'] },
+                { id: 'whatsapp', label: 'WhatsApp Integration', icon: MessageCircle, roles: ['admin', 'vendor'] },
             ]
         },
         {
             title: 'Tools',
             items: [
-                { id: 'notes', label: 'Notes', icon: StickyNote },
-                { id: 'settings', label: 'Configuration', icon: Settings },
+                { id: 'notes', label: 'Notes', icon: StickyNote, roles: ['admin', 'printer', 'client', 'vendor'] },
+                { id: 'settings', label: 'Configuration', icon: Settings, roles: ['admin', 'printer', 'client', 'vendor'] },
             ]
         }
     ];
+
+    const filteredMenuGroups = menuGroups.map(group => ({
+        ...group,
+        items: group.items.filter(item => !item.roles || item.roles.includes(user?.role || ''))
+    })).filter(group => group.items.length > 0);
 
     return (
         <motion.div 
@@ -169,7 +181,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
 
             {/* Navigation */}
             <div className="flex-1 overflow-y-auto hide-scroll px-2 py-3 space-y-4">
-                {menuGroups.map((group) => (
+                {filteredMenuGroups.map((group) => (
                     <div key={group.title}>
                         <AnimatePresence>
                             {!isCollapsed && (
@@ -228,25 +240,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
                         </ul>
                     </div>
                 ))}
-            </div>
-
-            {/* Brand Section */}
-            <div className="p-3 border-t border-[#2a2f3f] bg-[#1a1e29]/50 backdrop-blur-sm">
-                <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shrink-0 border border-[#2a2f3f]">
-                        IVY
-                    </div>
-                    {!isCollapsed && (
-                        <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="flex-1 min-w-0"
-                        >
-                            <p className="text-xs font-bold text-white truncate">IVY Studio</p>
-                            <p className="text-[9px] text-gray-500 font-semibold uppercase tracking-wider">Vendor</p>
-                        </motion.div>
-                    )}
-                </div>
             </div>
         </motion.div>
     );

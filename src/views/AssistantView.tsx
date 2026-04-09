@@ -784,7 +784,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({
                                     className="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-all"
                                     title="Cancel Task"
                                 >
-                                    <X size={20} />
+                                    <X size={16} />
                                 </button>
                                 <button 
                                     className="px-6 py-2.5 bg-[#0e30f1] text-white rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-blue-700 transition-all"
@@ -882,7 +882,7 @@ const AssistantView: React.FC<AssistantViewProps> = ({
                                     onClick={() => setShowHistory(false)}
                                     className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                                 >
-                                    <X size={20} />
+                                    <X size={16} />
                                 </button>
                             </div>
                             

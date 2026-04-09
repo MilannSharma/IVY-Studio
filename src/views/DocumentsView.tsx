@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Upload, Trash2, Download, Search, Plus, File, Image, FileCode, FileArchive } from 'lucide-react';
-import { db, storage, collection, addDoc, onSnapshot, query, where, orderBy, Timestamp, handleFirestoreError, OperationType, deleteDoc, doc } from '../firebase';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { db, storage, collection, addDoc, onSnapshot, query, where, orderBy, Timestamp, handleFirestoreError, OperationType, deleteDoc, doc, ref, uploadBytes, getDownloadURL, deleteObject } from '../firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import { useUser } from '../App';
 

@@ -696,7 +696,7 @@ interface Message {
                                     <Plus size={18} />
                                 </button>
                                 <button onClick={() => setIsOpen(false)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
-                                    <X size={18} />
+                                    <X size={14} />
                                 </button>
                             </div>
                         </div>
@@ -911,7 +911,7 @@ interface Message {
                     </motion.div>
                 )}
                 {isOpen ? (
-                    <X size={40} className="drop-shadow-lg" />
+                    <X size={24} className="drop-shadow-lg" />
                 ) : (
                     <div className="relative w-full h-full flex items-center justify-center">
                         <img 

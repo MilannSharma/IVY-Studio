@@ -2,8 +2,13 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Settings, Plus, X } from 'lucide-react';
 import { initialConfig } from '../data/initialData';
 import CustomSelect from '../components/CustomSelect';
+import Header from '../components/Header';
 
-const ConfigurationView: React.FC = () => {
+interface ConfigurationViewProps {
+    setActiveTab?: (tab: string) => void;
+}
+
+const ConfigurationView: React.FC<ConfigurationViewProps> = ({ setActiveTab }) => {
     const [configTab, setConfigTab] = useState('entities'); // 'entities', 'integrations', 'print', 'card-sizes'
     const [activeProjectType, setActiveProjectType] = useState(initialConfig.projectTypes[0]);
 
@@ -67,28 +72,23 @@ const ConfigurationView: React.FC = () => {
 
     return (
         <div className="flex-1 flex flex-col h-full bg-[#fafbfd] overflow-hidden">
-            {/* Header */}
-            <header className="bg-white border-b border-gray-200 px-8 py-3.5 flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                    <Settings size={20} />
-                    <h1 className="text-lg font-bold text-gray-900 tracking-tight">System Configuration</h1>
-                </div>
-                <div className="flex gap-6 mt-2 overflow-x-auto hide-scroll">
+            <Header title="System Configuration" icon={<Settings size={20} />} setActiveTab={setActiveTab}>
+                <div className="flex gap-6 overflow-x-auto hide-scroll">
                     {[['Entities & Fields', 'entities'], ['Integrations (ERP/LMS)', 'integrations'], ['Print Formats', 'print'], ['Card Sizes', 'card-sizes']].map(([label, id]) => {
                         const isActive = configTab === id;
                         return (
                             <button
                                 key={id}
                                 onClick={() => setConfigTab(id)}
-                                className={`pb-3 text-sm font-semibold transition-colors relative whitespace-nowrap ${isActive ? 'text-[#0e30f1]' : 'text-gray-500 hover:text-gray-700'}`}
+                                className={`pb-1 text-xs font-bold transition-colors relative whitespace-nowrap uppercase tracking-widest ${isActive ? 'text-[#0e30f1]' : 'text-gray-400 hover:text-gray-600'}`}
                             >
                                 {label}
-                                {isActive && <div className="absolute bottom-0 left-0 w-full h-[3px] bg-[#0e30f1] rounded-t-full"></div>}
+                                {isActive && <div className="absolute -bottom-3.5 left-0 w-full h-[3px] bg-[#0e30f1] rounded-t-full"></div>}
                             </button>
                         );
                     })}
                 </div>
-            </header>
+            </Header>
 
             {/* Content Scrollable Area */}
             <div className="flex-1 overflow-y-auto p-8 hide-scroll max-w-7xl mx-auto w-full">

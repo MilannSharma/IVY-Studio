@@ -92,7 +92,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -20 }}
                     className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200"
-                >
+                > 
                     <div className="flex items-center px-4 py-4 border-b border-gray-100">
                         <Search className="text-gray-400 mr-3" size={20} />
                         <input
@@ -107,7 +107,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose, onSele
                             <Command size={10} /> K
                         </div>
                         <button onClick={onClose} className="ml-4 p-1 text-gray-400 hover:text-gray-600 rounded-lg">
-                            <X size={20} />
+                            <X size={16} />
                         </button>
                     </div>
 

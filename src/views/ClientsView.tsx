@@ -7,11 +7,12 @@ import AddClientModal from '../components/modals/AddClientModal';
 
 interface ClientsViewProps {
   onSelectClient: (client: any) => void;
+  setActiveTab?: (tab: string) => void;
 }
 
-const ClientsView: React.FC<ClientsViewProps> = ({ onSelectClient }) => {
+const ClientsView: React.FC<ClientsViewProps> = ({ onSelectClient, setActiveTab }) => {
     const [clients, setClients] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState('');
     const [selectedSalesPersons, setSelectedSalesPersons] = useState<string[]>([]);
     const [isSalesDropdownOpen, setIsSalesDropdownOpen] = useState(false);
@@ -65,7 +66,7 @@ const ClientsView: React.FC<ClientsViewProps> = ({ onSelectClient }) => {
 
     return (
         <div className="flex-1 flex flex-col h-full bg-[#fafbfd] overflow-hidden">
-            <Header title="Clients Directory" icon={<Building size={20} />}>
+            <Header title="Clients Directory" icon={<Building size={20} />} setActiveTab={setActiveTab}>
                 <button 
                     onClick={() => setIsModalOpen(true)}
                     className="px-6 py-2.5 bg-[#0e30f1] text-white rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-blue-700 shadow-md transition-all active:scale-95"
